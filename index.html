@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>死ね</title>
+    <title>全画面動画再生</title>
     <style>
         * {
             margin: 0;
@@ -19,12 +19,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            cursor: pointer; /* 画面全体がクリック可能であることを示す */
         }
 
         video {
             width: 100vw;
             height: 100vh;
-            object-fit: contain; /* アスペクト比を維持して画面内に収める (画面全体に敷き詰めたい場合は cover に変更) */
+            object-fit: contain; /* アスペクト比を維持して画面内に収める (拡大したい場合は cover に変更) */
             outline: none;
             border: none;
         }
@@ -34,13 +35,35 @@
 
     <!-- 
         loop: 無限ループ再生 
-        autoplay muted: 自動再生を有効化（※ブラウザの仕様上、無音再生でのみ自動再生が許可されます）
         playsinline: モバイル環境対応
+        ※ muted 属性を外すことで音声付きで再生します
     -->
-    <video id="myVideo" src="死ね.mp4" loop autoplay muted playsinline></video>
+    <video id="myVideo" src="テスト.mp4" loop playsinline></video>
 
     <script>
         const video = document.getElementById('myVideo');
+
+        // 音声を有効にした状態で再生を試みる関数
+        function playWithAudio() {
+            video.muted = false; // 消音解除
+            video.play().catch(err => {
+                console.log("自動再生がブロックされました。画面をクリックするかスペースキーを押してください。", err);
+            });
+        }
+
+        // ページロード時に再生を試みる（ブラウザの制限によりブロックされる場合もあります）
+        window.addEventListener('load', () => {
+            playWithAudio();
+        });
+
+        // ユーザーが画面のどこかをクリックした際に音声付き再生を開始／切り替え
+        document.body.addEventListener('click', () => {
+            if (video.paused) {
+                playWithAudio();
+            } else {
+                video.pause();
+            }
+        });
 
         // キーボード入力を検出してスペースキーで再生/一時停止を切り替え
         window.addEventListener('keydown', (e) => {
@@ -49,7 +72,7 @@
                 e.preventDefault();
 
                 if (video.paused) {
-                    video.play();
+                    playWithAudio();
                 } else {
                     video.pause();
                 }
